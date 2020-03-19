@@ -8,6 +8,8 @@ from tu import tu
 def df_shijing():
     json_shijing=pd.read_json('shijing.json')
 
+    json_hanzi=pd.read_json('hanzi.json')
+
     dict_shijing=[]
     for i in json_shijing.index:
         for j in json_shijing['content'][i]:
@@ -17,6 +19,9 @@ def df_shijing():
                         dict_shijing.append([m,k,n,json_shijing['title'][i]])
     df_shijing=pd.DataFrame(dict_shijing).drop_duplicates()
     df_shijing=df_shijing.rename(columns={0:'one',1:'two',2:'content',3:'title'})
+
+    df_shijing=df_shijing.merge(json_hanzi,how='inner',left_on='one',right_on='word')
+    df_shijing=df_shijing.merge(json_hanzi,how='inner',left_on='two',right_on='word')
 
     df_shijing['wuxing_one']='0'
     for i in df_shijing.index:
