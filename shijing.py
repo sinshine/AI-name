@@ -1,14 +1,14 @@
 import pandas as pd
-from jin import jin
-from mu import mu
-from shui import shui
-from huo import huo
-from tu import tu
+from wuxing.jin import jin
+from wuxing.mu import mu
+from wuxing.shui import shui
+from wuxing.huo import huo
+from wuxing.tu import tu
 
 def df_shijing():
-    json_shijing=pd.read_json('shijing.json')
+    json_shijing=pd.read_json('./json/shijing.json')
 
-    json_hanzi=pd.read_json('hanzi.json')
+    json_hanzi=pd.read_json('./json/hanzi.json')
 
     dict_shijing=[]
     for i in json_shijing.index:
