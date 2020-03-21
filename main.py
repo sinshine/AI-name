@@ -1,52 +1,27 @@
 import pandas as pd
-from wuxing.jin import jin
-from wuxing.mu import mu
-from wuxing.shui import shui
-from wuxing.huo import huo
-from wuxing.tu import tu
 
-def df_shijing():
-    json_shijing=pd.read_json('./json/shijing.json')
+def df_s(pth):
+    data_s=pd.read_csv(pth)
+    #data_s=pd.read_json(pth).dropna()
+    data_hanzi=pd.read_csv('./data/kangxi-strokecount.csv')[['Character','Strokes']]
+    data_wuxing=pd.read_csv('./data/wuxing.csv')
+    dict_s=[]
+    for i in data_s.index:
+        for m in data_s['content'][i]:
+            for n in data_s['content'][i]:
+                dict_s.append([m,n,data_s['content'][i],data_s['title'][i]])
+        #for j in data_s['content'][i].split('。'):
+            #for n in j:
+                #for m in j:
+                    #dict_s.append([n,m,j,data_s['title'][i]])
+    df_s=pd.DataFrame(dict_s).drop_duplicates()
+    df_s=df_s.rename(columns={0:'one',1:'two',2:'content',3:'title'})
+    df_s['wuxing_one']='0'
+    df_s=df_s.merge(data_wuxing,how='inner',left_on='one',right_on='hanzi')
+    df_s=df_s.merge(data_wuxing,how='inner',left_on='two',right_on='hanzi')
+    df_s=df_s.merge(data_hanzi,how='inner',left_on='one',right_on='Character')
+    df_s=df_s.merge(data_hanzi,how='inner',left_on='two',right_on='Character')
+    df_s['Strokes']=df_s['Strokes_x']+df_s['Strokes_y']
+    return df_s
 
-    json_hanzi=pd.read_json('./json/hanzi.json')
-
-    dict_shijing=[]
-    for i in json_shijing.index:
-        for j in json_shijing['content'][i]:
-            for n in j.split('。'):
-                for m in n:
-                    for k in n:
-                        dict_shijing.append([m,k,n,json_shijing['title'][i]])
-    df_shijing=pd.DataFrame(dict_shijing).drop_duplicates()
-    df_shijing=df_shijing.rename(columns={0:'one',1:'two',2:'content',3:'title'})
-
-    df_shijing=df_shijing.merge(json_hanzi,how='inner',left_on='one',right_on='word')
-    df_shijing=df_shijing.merge(json_hanzi,how='inner',left_on='two',right_on='word')
-
-    df_shijing['wuxing_one']='0'
-    for i in df_shijing.index:
-        if df_shijing['one'][i] in jin:
-            df_shijing['wuxing_one'][i]='金'
-        elif df_shijing['one'][i] in mu:
-            df_shijing['wuxing_one'][i]='木'
-        elif df_shijing['one'][i] in shui:
-            df_shijing['wuxing_one'][i]='水'
-        elif df_shijing['one'][i] in huo:
-            df_shijing['wuxing_one'][i]='火'
-        elif df_shijing['one'][i] in tu:
-            df_shijing['wuxing_one'][i]='土'
-
-    df_shijing['wuxing_two']='0'
-    for i in df_shijing.index:
-        if df_shijing['two'][i] in jin:
-            df_shijing['wuxing_two'][i]='金'
-        elif df_shijing['two'][i] in mu:
-            df_shijing['wuxing_two'][i]='木'
-        elif df_shijing['two'][i] in shui:
-            df_shijing['wuxing_two'][i]='水'
-        elif df_shijing['two'][i] in huo:
-            df_shijing['wuxing_two'][i]='火'
-        elif df_shijing['two'][i] in tu:
-            df_shijing['wuxing_two'][i]='土'
-
-    return df_shijing
+df_s('./data/shijing_fanti.csv').to_csv('shijing.csv')
